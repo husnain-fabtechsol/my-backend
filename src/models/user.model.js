@@ -1,26 +1,62 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import bcrypt from "bcrypt"
 
 const userSchema = new mongoose.Schema({
-    name: {
+    username: {
         type: String,
         required: true,
+        unique:true
     },
     email: {
         type: String,
-        required: true,
         unique: true,
+        required: true,
     },
     password: {
         type: String,
         required: true,
+    },
+    avatar: {
+        type: String,
+        required: true,
+
+    },
+    coverimage: {
+        type: String,
+        required: true,
+    },
+    watchHistory: {
+        type: Schema.Types.ObjectId,
+        ref: "Video",
     },
     isAdmin: {
         type: Boolean,
         required: true,
         default: false,
     },
-});
-
+},
+{timestamps:true}
+);
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
+     return   next();
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+})
+userSchema.methods.matchPassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+}
+userSchema.methods.generateAssignToken = function () {
+    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+    });
+}
+userSchema.methods.generateRefreshToken = function () {
+    return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+    });
+}
 const Usermodel = mongoose.model("User", userSchema);
 
 export default Usermodel;
