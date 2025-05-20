@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -23,7 +24,7 @@ const userSchema = new mongoose.Schema({
     },
     coverimage: {
         type: String,
-        required: true,
+        
     },
     watchHistory: {
         type: Schema.Types.ObjectId,

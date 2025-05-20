@@ -1,18 +1,14 @@
 import dotenv from "dotenv"
-import express from 'express';
 import connectDB from "./db/index.js"
-
-import userRouter from "./routes/userRouter.js";
-const app = express();
+import {app} from "./app.js"
 dotenv.config()
 const port = 3000;
 
-app.use('/api/users', userRouter);
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-
+console.log("jhjhj")
 connectDB()
 .then(()=>{
     app.listen(port, () => {
@@ -22,7 +18,3 @@ connectDB()
 .catch((error)=>{
     console.log( error)
 })
-
-// mongoose.connect("mongodb+srv://husnain483271:khan1122@backend.cdtrwii.mongodb.net/NODE-API?retryWrites=true&w=majority&appName=backend")
-//   .then(() => console.log('Connected to MongoDB'))
-//   .catch(err => console.error('Connection failed', err));
