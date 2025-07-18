@@ -5,17 +5,18 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 import {uploadOnCloudinary} from '../utils/Cloudnary.js';
 // Register a new user
 const registerUser = asyncHandler(async (req, res) => {
-    const { username, email, password } = req.body;
-console.log(username, email, password)
+    const { username, email, password,role } = req.body;
+
     // Validate required fields
-    if ([username, email, password].some((field) => !field?.trim())) {
+    if ([username, email, password].some((field) => !field?.trim()))    {
        throw new ApiError(400, "Invalid credentials", ["Email and password are required"]);
     }
     
 
     // Check if user already exists
     const existedUser = await usermodel.findOne({
-        $or: [{ username }, { email }],
+        // $or: [{ username }, { email }],
+        email
     });
 
     if (existedUser) {
@@ -43,6 +44,7 @@ console.log(username, email, password)
         password,
         avatar: avatarUrl?.url||"",
         coverimage: coverImage?.url||"",
+        role,
     });
     // Fetch created user without sensitive fields
     const createdUser = await usermodel
@@ -181,7 +183,9 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             new ApiResponse(200, user, 'Profile updated successfully')
         );
 });
+const generateRefreshTokenAndaccess =()=>{
 
+}
 export {
     registerUser,
     loginUser,

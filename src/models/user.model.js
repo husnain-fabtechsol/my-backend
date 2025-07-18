@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        unique:true
+        
     },
     email: {
         type: String,
@@ -26,15 +26,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         
     },
-    watchHistory: {
-        type: Schema.Types.ObjectId,
-        ref: "Video",
-    },
-    isAdmin: {
-        type: Boolean,
-        required: true,
-        default: false,
-    },
+  role: {
+    type: String,
+    enum: ["U", "AD","RE"],
+    default: "user",
+  }
+  
 },
 {timestamps:true}
 );
