@@ -1,26 +1,25 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import usermodel from '../models/user.model.js';
-import { ApiError } from '../utils/ApiError.js';
+import  {ApiError}  from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import {uploadOnCloudinary} from '../utils/Cloudnary.js';
 // Register a new user
-const registerUser = asyncHandler(async (req, res) => {
+const registerUser = asyncHandler(async (req, res,next) => {
     const { username, email, password,role } = req.body;
 
     // Validate required fields
-    if ([username, email, password].some((field) => !field?.trim()))    {
-       throw new ApiError(400, "Invalid credentials", ["Email and password are required"]);
+    if ([ email, password].some((field) => !field?.trim()))    {
+        next(new ApiError(400, "Invalid credentials"));
     }
     
 
     // Check if user already exists
     const existedUser = await usermodel.findOne({
-        // $or: [{ username }, { email }],
         email
     });
 
     if (existedUser) {
-        throw new ApiError(409, 'User with email or username already exists');
+        next(new ApiError(409, "User with email or username already exists"));
     }
 
     // Create new user
@@ -39,7 +38,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'avatar is required');
     }
     const user = await usermodel.create({
-        username,
+    
         email,
         password,
         avatar: avatarUrl?.url||"",
@@ -63,20 +62,17 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 // Login user
-const loginUser = asyncHandler(async (req, res) => {
+const loginUser = asyncHandler(async (req, res,next) => {
     const { email, username, password } = req.body;
-
-    // Validate input
-    if (!(email || username)) {
-        throw new ApiError(400, 'Username or email is required');
+    if (!email) {
+       return next(new ApiError( ' email is required',400));
     }
     if (!password) {
         throw new ApiError(400, 'Password is required');
     }
 
-    // Find user
     const user = await usermodel.findOne({
-        $or: [{ email }, { username }],
+ email 
     });
 
     if (!user) {
@@ -151,7 +147,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json(
-            new ApiResponse(200, req.user, 'Current user fetched successfully')
+            new ApiResponse(200,'Current user fetched successfully', req.user )
         );
 });
 
@@ -183,13 +179,20 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             new ApiResponse(200, user, 'Profile updated successfully')
         );
 });
-const generateRefreshTokenAndaccess =()=>{
+const getAllUsers = asyncHandler(async (req, res) => {
+    const users = await usermodel.find().select('-password -refreshToken');
 
-}
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200,'All users fetched successfully', users )
+        );
+});
 export {
     registerUser,
     loginUser,
     logoutUser,
     getCurrentUser,
     updateUserProfile,
+    getAllUsers
 };
